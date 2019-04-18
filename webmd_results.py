@@ -15,6 +15,7 @@ def main():
         results = resp.html.find('.results-container', first=True)
         
         if (results == None):
+            print("Ended link scraping on results page %d.\n" % (pagination_counter - 1))
             break;
 
         for _, link in enumerate(results.absolute_links):
@@ -24,7 +25,7 @@ def main():
             print("Added links up to results page %d.\n" % pagination_counter)
         
         pagination_counter += 1
-        
+
     f.close()
 
 main()
