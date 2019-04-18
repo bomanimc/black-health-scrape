@@ -10,7 +10,6 @@ def main():
     f = open("webmd_results.txt","w+")
 
     while (status_code == 200):
-        pagination_counter += 1
         resp = session.get(BASE_SEARCH_URL + str(pagination_counter))
         status_code = resp.status_code
         results = resp.html.find('.results-container', first=True)
@@ -23,6 +22,8 @@ def main():
 
         if (pagination_counter % 10 == 0):
             print("Added links up to results page %d.\n" % pagination_counter)
+        
+        pagination_counter += 1
         
     f.close()
 
