@@ -28,7 +28,7 @@ def getRelevantSentencesFromLink(nlp, link):
         view_all = driver.find_element_by_class_name('view-all').find_elements_by_css_selector("*")[0]
         view_all.click()
         time.sleep(0.25)
-    except:
+    except Exception as ex:
         print("Could not click View All button.\n\n")
         print(ex)
 
