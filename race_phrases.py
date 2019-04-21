@@ -1,13 +1,12 @@
 import re
 import time
 import spacy
-from requests_html import HTMLSession
+from selenium import webdriver
 
 FILE_PATH = 'webmd_results.txt'
-SEARCH_TERM = 'african'
+SEARCH_TERMS = ['african', 'black']
 
 def main():
-    session = HTMLSession()
     nlp = spacy.load("en_core_web_sm")
 
     lines_of_interest = []
@@ -16,23 +15,41 @@ def main():
         for cnt, line in enumerate(fp):
             print(line + "\n")
             
-            resp = session.get(line.strip())
-            resp.html.render()
-            article_p = resp.html.find('p')
-
-            for p in article_p:
-                print(p)
-                print(p.text)
-                doc = nlp(p.text)
-                print(list(doc.sents))
-                lines_of_interest += list(doc.sents)
-
-            time.sleep(5)
-
-            if (cnt > 50):
-                break
+            # Open the page
+            driver = webdriver.Chrome('/Users/Bomani/chromedriver')
+            driver.get(line.strip())
             
-            break
+            # Close the newsletter popup
+            try:
+                close_popup = driver.find_element_by_id('webmdHoverClose')
+                close_popup.click()
+            except Exception as ex:
+                print("Could not close popup.\n\n")
+                print(ex)
+
+            # Click the view all button
+            view_all = driver.find_element_by_class_name('view-all').find_elements_by_css_selector("*")[0]
+            view_all.click()
+            time.sleep(0.25)
+
+            # Get all of the article's text
+            body = driver.find_element_by_class_name("article-body")
+            doc = nlp(body.text)
+
+            # Get the important sentences
+            for sent in doc.sents: 
+                sent_string = sent.string.strip()
+                if any(term in sent_string.lower() for term in SEARCH_TERMS):
+                    lines_of_interest.append(sent_string)
+
+            driver.close()
+            time.sleep(2)
+
+            if (cnt % 10 == 0):
+                print("Processed %d links.\n" % cnt)
+
+            if (cnt > 10):
+                break
 
     print(lines_of_interest)
 
