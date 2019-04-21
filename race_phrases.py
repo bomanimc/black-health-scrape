@@ -6,6 +6,7 @@ from selenium import webdriver
 
 FILE_PATH = 'webmd_results.txt'
 SEARCH_TERMS = ['african', 'black']
+OUTPUT_FILE = 'black.csv'
 
 def getRelevantSentencesFromLink(nlp, link):
     relevant_sentences = []
@@ -44,10 +45,23 @@ def getRelevantSentencesFromLink(nlp, link):
 def main():
     nlp = spacy.load("en_core_web_sm")
 
+    previous_links = {}
+    with open(OUTPUT_FILE, mode='r') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        for row in csv_reader:
+            if (row[0] in previous_links):
+                previous_links[row[0]] += 1
+            else:
+                previous_links[row[0]] = 0
+
     with open(FILE_PATH) as fp:  
-        with open('black.csv', mode='w') as black_file:
+        with open(OUTPUT_FILE, mode='a') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
+                if (link in previous_links):
+                    print("Skipping link: %s. \n" % link)
+                    continue
+                
                 print(link + "\n")
                 
                 try:
@@ -62,8 +76,5 @@ def main():
 
                 if (cnt % 10 == 0):
                     print("Processed %d links.\n" % cnt)
-
-                if (cnt > 10):
-                    break
 
 main()
