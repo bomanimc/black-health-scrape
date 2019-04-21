@@ -24,9 +24,13 @@ def getRelevantSentencesFromLink(nlp, link):
         print(ex)
 
     # Click the view all button
-    view_all = driver.find_element_by_class_name('view-all').find_elements_by_css_selector("*")[0]
-    view_all.click()
-    time.sleep(0.25)
+    try:
+        view_all = driver.find_element_by_class_name('view-all').find_elements_by_css_selector("*")[0]
+        view_all.click()
+        time.sleep(0.25)
+    except:
+        print("Could not click View All button.\n\n")
+        print(ex)
 
     # Get all of the article's text
     body = driver.find_element_by_class_name("article-body")
