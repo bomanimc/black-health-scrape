@@ -74,8 +74,6 @@ def main():
                     previous_links[row[0]] = 0
 
     with open(FILE_PATH) as fp:  
-        # open_behavior = 'a' if os.path.exists(OUTPUT_FILE) else 'w'
-        # print(open_behavior)
         with open(OUTPUT_FILE, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
