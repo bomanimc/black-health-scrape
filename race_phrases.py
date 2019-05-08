@@ -90,6 +90,7 @@ def main():
                     relevant_sents = link_data.get('sentences')
                 except Exception as ex:
                     print(ex)
+                    continue
 
                 authors = getProcessedByline(link_data.get('authors'))
                 for sent in relevant_sents:
