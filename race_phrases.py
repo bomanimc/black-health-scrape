@@ -9,8 +9,9 @@ FILE_PATH = 'webmd_results.txt'
 SEARCH_TERMS = ['african', 'black']
 OUTPUT_FILE = 'black_2.csv'
 
-def getRelevantSentencesFromLink(nlp, link):
+def getDataFromLink(nlp, link):
     relevant_sentences = []
+    author_text = 'NONE'
 
     # Open the page
     driver = webdriver.Chrome('/Users/Bomani/chromedriver')
@@ -33,6 +34,14 @@ def getRelevantSentencesFromLink(nlp, link):
         print("Could not click View All button.\n\n")
         print(ex)
 
+    # Get the authors
+    try:
+        authors = driver.find_element_by_class_name('authors')
+        author_text = authors.text
+    except Exception as ex:
+        print("Could not get the author.\n\n")
+        print(ex)
+
     # Get all of the article's text
     body = driver.find_element_by_class_name("article-body")
     doc = nlp(body.text)
@@ -44,8 +53,12 @@ def getRelevantSentencesFromLink(nlp, link):
             relevant_sentences.append(sent_string)
 
     driver.close()
-    return relevant_sentences
+    return {'sentences': relevant_sentences, 'authors': author_text}
 
+def getProcessedByline(authors_text):
+    authors = authors_text.strip()
+    if authors[0:2] == 'By':
+        return authors[3:]
 
 def main():
     nlp = spacy.load("en_core_web_sm")
@@ -75,12 +88,14 @@ def main():
                 relevant_sents = []
 
                 try:
-                    relevant_sents = getRelevantSentencesFromLink(nlp, link)
+                    link_data = getDataFromLink(nlp, link)
+                    relevant_sents = link_data.get('sentences')
                 except Exception as ex:
                     print(ex)
 
+                authors = getProcessedByline(link_data.get('authors'))
                 for sent in relevant_sents:
-                    csv_writer.writerow([link, sent])
+                    csv_writer.writerow([link, sent, authors])
                 
                 time.sleep(2)
 
