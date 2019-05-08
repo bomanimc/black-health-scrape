@@ -1,12 +1,13 @@
 import re
 import time
 import csv
+import os
 import spacy
 from selenium import webdriver
 
 FILE_PATH = 'webmd_results.txt'
 SEARCH_TERMS = ['african', 'black']
-OUTPUT_FILE = 'black.csv'
+OUTPUT_FILE = 'black_2.csv'
 
 def getRelevantSentencesFromLink(nlp, link):
     relevant_sentences = []
@@ -50,24 +51,29 @@ def main():
     nlp = spacy.load("en_core_web_sm")
 
     previous_links = {}
-    with open(OUTPUT_FILE, mode='r') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        for row in csv_reader:
-            if (row[0] in previous_links):
-                previous_links[row[0]] += 1
-            else:
-                previous_links[row[0]] = 0
+    if os.path.exists(OUTPUT_FILE):
+        with open(OUTPUT_FILE, mode='r') as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=',')
+            for row in csv_reader:
+                if (row[0] in previous_links):
+                    previous_links[row[0]] += 1
+                else:
+                    previous_links[row[0]] = 0
 
     with open(FILE_PATH) as fp:  
-        with open(OUTPUT_FILE, mode='a') as black_file:
+        # open_behavior = 'a' if os.path.exists(OUTPUT_FILE) else 'w'
+        # print(open_behavior)
+        with open(OUTPUT_FILE, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
-                if (link in previous_links):
+                if (link in previous_links or '/qa/' in link):
                     print("Skipping link: %s. \n" % link)
                     continue
                 
                 print(link + "\n")
                 
+                relevant_sents = []
+
                 try:
                     relevant_sents = getRelevantSentencesFromLink(nlp, link)
                 except Exception as ex:
