@@ -66,7 +66,7 @@ def main():
         with open(OUTPUT_FILE, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
-                if (link in previous_links or '/qa/' in link):
+                if (link in previous_links or '/qa/' in link or '/news/' in link):
                     print("Skipping link: %s. \n" % link)
                     continue
                 
