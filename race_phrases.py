@@ -4,17 +4,28 @@ import csv
 import os
 import spacy
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 FILE_PATH = 'webmd_results.txt'
 SEARCH_TERMS = ['african', 'black']
 OUTPUT_FILE = 'black_2.csv'
+
+CHROMEDRIVER_PATH = '/Users/Bomani/chromedriver'
+WINDOW_SIZE = "1920,1080"
 
 def getDataFromLink(nlp, link):
     relevant_sentences = []
     author_text = 'NONE'
 
     # Open the page
-    driver = webdriver.Chrome('/Users/Bomani/chromedriver')
+    chrome_options = Options()  
+    chrome_options.add_argument("--headless")  
+    chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
+    
+    driver = webdriver.Chrome(
+        executable_path=CHROMEDRIVER_PATH,
+        options=chrome_options
+    )  
     driver.get(link.strip())
     
     # Close the newsletter popup
