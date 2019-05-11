@@ -8,7 +8,7 @@ from selenium.webdriver.chrome.options import Options
 
 FILE_PATH = 'webmd_results.txt'
 SEARCH_TERMS = ['african', 'black']
-OUTPUT_FILE = 'black_2.csv'
+OUTPUT_FILE = 'black_news.csv'
 
 CHROMEDRIVER_PATH = '/Users/Bomani/chromedriver'
 WINDOW_SIZE = "1920,1080"
@@ -88,7 +88,7 @@ def main():
         with open(OUTPUT_FILE, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
-                if (link in previous_links or '/qa/' in link or '/news/' in link):
+                if (link in previous_links or '/news/' not in link):
                     print("Skipping link: %s. \n" % link)
                     continue
                 
