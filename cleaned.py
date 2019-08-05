@@ -1,6 +1,10 @@
 import csv
 import datetime
 import re
+from nltk import word_tokenize 
+from nltk.util import ngrams
+import operator
+import pprint
 
 INPUT_CSV_NAME = 'black_news'
 INPUT_FILE_PATH = 'black_news.csv'
@@ -26,12 +30,26 @@ def should_select_sentence(sent):
 
 def main():
     sentences = []
+    bigrams_dict = {}
     with open(INPUT_FILE_PATH, mode='r') as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
         invalid_count = 0
         for row in csv_reader:
             sent = row[1].strip()
+            
+            text = sent.lower()
+            token = word_tokenize(text)
+            bigrams = list(ngrams(token, 2)) 
+            for bigram in bigrams:
+                connected_bigram = ' '.join(bigram)
+                if (any(term in bigram[0] for term in ['african', 'black'])):
+                    # print(connected_bigram)
+                    if (connected_bigram in bigrams_dict):
+                        bigrams_dict[connected_bigram] += 1
+                    else:
+                        bigrams_dict[connected_bigram] = 0
+
             if (should_select_sentence(sent)):
                 sentences.append(sent)
                 line_count += 1
@@ -42,6 +60,11 @@ def main():
     
     sentences = list(set(sentences))
     print("Num Unique Sentence Lines: ", len(sentences))
+
+    sorted_bigrams_dict = sorted(bigrams_dict.items(), key=operator.itemgetter(1), reverse=True)
+    print("\n\n Bigram Counts in Descending Order:")
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(sorted_bigrams_dict)
 
     write_time = datetime.datetime.now()
     output_file = OUTPUT_FILE_BASE + "_" + INPUT_CSV_NAME + "_" + str(write_time) + '.csv'
