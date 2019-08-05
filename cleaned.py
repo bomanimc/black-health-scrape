@@ -1,9 +1,28 @@
 import csv
 import datetime
+import re
 
 INPUT_CSV_NAME = 'black_news'
 INPUT_FILE_PATH = 'black_news.csv'
 OUTPUT_FILE_BASE = 'cleaned/cleaned_'
+
+def has_only_relevant_blacks(sent):
+    pat = r'(\w*%s\w*)' % 'black'
+    matches = re.findall(pat, sent.lower())
+    for match in matches:
+        if (match not in ['black', 'blacks', 'nonblack']):
+            print(match)
+            return False
+    
+    return True
+
+def should_select_sentence(sent):
+    ends_with_period = sent[-1] == '.'
+    no_newlines = "\n" not in sent
+    not_about_trypanosomiasis = 'trypanosomiasis' not in sent
+    only_relevant_black = has_only_relevant_blacks(sent)
+
+    return ends_with_period and no_newlines and not_about_trypanosomiasis and only_relevant_black
 
 def main():
     sentences = []
@@ -13,7 +32,7 @@ def main():
         invalid_count = 0
         for row in csv_reader:
             sent = row[1].strip()
-            if (sent[-1] == '.' and "\n" not in sent and 'trypanosomiasis' not in sent):
+            if (should_select_sentence(sent)):
                 sentences.append(sent)
                 line_count += 1
             else:
