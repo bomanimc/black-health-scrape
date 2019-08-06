@@ -10,6 +10,13 @@ INPUT_CSV_NAME = 'black_news'
 INPUT_FILE_PATH = 'black_news.csv'
 OUTPUT_FILE_BASE = 'cleaned/cleaned_'
 
+BAD_BIGRAMS = [
+    'black tea', 
+    'africano para', 
+    'african bean',
+    'black hills',
+]
+
 def has_only_relevant_blacks(sent):
     pat = r'(\w*%s\w*)' % 'black'
     matches = re.findall(pat, sent.lower())
@@ -20,13 +27,17 @@ def has_only_relevant_blacks(sent):
     
     return True
 
-def should_select_sentence(sent):
+def should_select_sentence(sent, connected_bigrams):
     ends_with_period = sent[-1] == '.'
     no_newlines = "\n" not in sent
     not_about_trypanosomiasis = 'trypanosomiasis' not in sent
     only_relevant_black = has_only_relevant_blacks(sent)
+    contains_bad_bigram = any(term in connected_bigrams for term in BAD_BIGRAMS)
+    if contains_bad_bigram:
+        print("Contains Bad Bigram", contains_bad_bigram)
+        print(sent, "\n")
 
-    return ends_with_period and no_newlines and not_about_trypanosomiasis and only_relevant_black
+    return ends_with_period and no_newlines and not_about_trypanosomiasis and only_relevant_black and not contains_bad_bigram
 
 def main():
     sentences = []
@@ -41,16 +52,17 @@ def main():
             text = sent.lower()
             token = word_tokenize(text)
             bigrams = list(ngrams(token, 2)) 
+            connected_bigrams = []
             for bigram in bigrams:
                 connected_bigram = ' '.join(bigram)
                 if (any(term in bigram[0] for term in ['african', 'black'])):
-                    # print(connected_bigram)
+                    connected_bigrams.append(connected_bigram)
                     if (connected_bigram in bigrams_dict):
                         bigrams_dict[connected_bigram] += 1
                     else:
-                        bigrams_dict[connected_bigram] = 0
+                        bigrams_dict[connected_bigram] = 1
 
-            if (should_select_sentence(sent)):
+            if (should_select_sentence(sent, connected_bigrams)):
                 sentences.append(sent)
                 line_count += 1
             else:
