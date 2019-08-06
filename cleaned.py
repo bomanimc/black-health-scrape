@@ -15,6 +15,14 @@ BAD_BIGRAMS = [
     'africano para', 
     'african bean',
     'black hills',
+    'african plum',
+    'african mango',
+    'black beans',
+    'black henna',
+    'black-ish ,',
+    'black box',
+    'black pepper',
+    'african forests'
 ]
 
 def has_only_relevant_blacks(sent):
