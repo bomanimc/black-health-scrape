@@ -1,12 +1,25 @@
+"""WebMD Article Scraper
+
+This scraper goes through a list of WebMD links and collects the text
+in each article. It then breaks the text into sentences and selects 
+sentences that contain the words in the SEARCH_TERMS array. 
+
+"""
+
 import re
 import time
 import csv
 import os
 import spacy
+import getopt, sys
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-FILE_PATH = 'webmd_results.txt'
+full_cmd_arguments = sys.argv
+argument_list = full_cmd_arguments[1:]
+gnuOptions = ["input-dir="]
+
+FILE_PATH = ''
 SEARCH_TERMS = ['african', 'black']
 OUTPUT_FILE = 'black_news.csv'
 
@@ -72,6 +85,19 @@ def getProcessedByline(authors_text):
         return authors[3:]
 
 def main():
+    try:
+        arguments, values = getopt.getopt(argument_list, "", gnuOptions)
+    except getopt.error as err:
+        # output error, and return with an error code
+        print (str(err))
+        sys.exit(2)
+    
+    # evaluate given options
+    for currentArgument, currentValue in arguments:
+        if currentArgument in ("--input-dir"):
+            FILE_PATH = currentValue
+            print ("Using search results links from directory:", FILE_PATH)
+
     nlp = spacy.load("en_core_web_sm")
 
     previous_links = {}
