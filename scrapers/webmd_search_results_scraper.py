@@ -1,3 +1,11 @@
+"""WebMD Search Results Scraper
+
+This scraper is used to scrape a list of links that are returned when 
+"African American" is searched on WebMD. These links are compiled
+line-by-line into a .txt file file.
+
+"""
+
 import os
 import datetime
 from requests_html import HTMLSession
