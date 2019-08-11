@@ -17,28 +17,36 @@ def main():
     status_code = 200
     pagination_counter = 1
 
-    write_time = datetime.datetime.now()
-    filename = "../data/webmd_search_results/webmd_search_results_" + str(write_time) + ".txt"
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    write_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+    base_output_path = "../data/webmd_search_results_" + write_time
+    news_links_filename = base_output_path + "/news_search_results.txt"
+    other_links_filename = base_output_path + "/other_search_results.txt"
+    os.makedirs(os.path.dirname(news_links_filename), exist_ok=True)
+    os.makedirs(os.path.dirname(other_links_filename), exist_ok=True)
     
-    with open(filename, "w+") as f:
-        while (status_code == 200):
-            resp = session.get(BASE_SEARCH_URL + str(pagination_counter))
-            status_code = resp.status_code
-            results = resp.html.find('.results-container', first=True)
-            
-            if (results == None):
-                print("Ended link scraping on results page %d.\n" % (pagination_counter - 1))
-                break
+    with open(news_links_filename, "w+") as news_file:
+        with open(other_links_filename, "w+") as other_file:
+            while (status_code == 200):
+                resp = session.get(BASE_SEARCH_URL + str(pagination_counter))
+                status_code = resp.status_code
+                results = resp.html.find('.results-container', first=True)
+                
+                if (results == None):
+                    print("Ended link scraping on results page %d.\n" % (pagination_counter - 1))
+                    break
 
-            for _, link in enumerate(results.absolute_links):
-                f.write(link + "\n")
+                for _, link in enumerate(results.absolute_links):
+                    if ('/news/' not in link):
+                        other_file.write(link + "\n")
+                    else:
+                        news_file.write(link + "\n") 
 
-            if (pagination_counter % 10 == 0):
-                print("Added links up to results page %d.\n" % pagination_counter)
-            
-            pagination_counter += 1
+                if (pagination_counter % 10 == 0):
+                    print("Added links up to results page %d.\n" % pagination_counter)
+                
+                pagination_counter += 1
 
-        f.close()
+            news_file.close()
+            other_file.close()
 
 main()
