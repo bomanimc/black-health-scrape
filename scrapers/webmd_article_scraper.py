@@ -17,11 +17,11 @@ from selenium.webdriver.chrome.options import Options
 
 full_cmd_arguments = sys.argv
 argument_list = full_cmd_arguments[1:]
-gnuOptions = ["input-dir="]
+gnuOptions = ["input-file="]
 
 FILE_PATH = ''
 SEARCH_TERMS = ['african', 'black']
-OUTPUT_FILE = 'black_news.csv'
+OUTPUT_FILE = '../data/black_news.csv'
 
 CHROMEDRIVER_PATH = '/Users/Bomani/chromedriver'
 WINDOW_SIZE = "1920,1080"
@@ -94,9 +94,9 @@ def main():
     
     # evaluate given options
     for currentArgument, currentValue in arguments:
-        if currentArgument in ("--input-dir"):
+        if currentArgument in ("--input-file"):
             FILE_PATH = currentValue
-            print ("Using search results links from directory:", FILE_PATH)
+            print ("Using search results links from input file:", FILE_PATH)
 
     nlp = spacy.load("en_core_web_sm")
 
@@ -114,8 +114,8 @@ def main():
         with open(OUTPUT_FILE, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
-                if (link in previous_links or '/news/' not in link):
-                    print("Skipping link: %s. \n" % link)
+                if (link in previous_links):
+                    print("Skipping link because it has already been scraped: %s. \n" % link)
                     continue
                 
                 print(link + "\n")
