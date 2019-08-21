@@ -11,22 +11,13 @@ import time
 import csv
 import os
 import spacy
-import getopt, sys
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-full_cmd_arguments = sys.argv
-argument_list = full_cmd_arguments[1:]
-gnuOptions = ["input-file="]
-
-FILE_PATH = ''
 SEARCH_TERMS = ['african', 'black']
-OUTPUT_FILE = '../data/black_news.csv'
-
-CHROMEDRIVER_PATH = '/Users/Bomani/chromedriver'
 WINDOW_SIZE = "1920,1080"
 
-def getDataFromLink(nlp, link):
+def getDataFromLink(nlp, link, chromedriver_path):
     relevant_sentences = []
     author_text = 'NONE'
 
@@ -36,7 +27,7 @@ def getDataFromLink(nlp, link):
     chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
     
     driver = webdriver.Chrome(
-        executable_path=CHROMEDRIVER_PATH,
+        executable_path=chromedriver_path,
         options=chrome_options
     )  
     driver.get(link.strip())
@@ -84,25 +75,12 @@ def getProcessedByline(authors_text):
     if authors[0:2] == 'By':
         return authors[3:]
 
-def main():
-    try:
-        arguments, values = getopt.getopt(argument_list, "", gnuOptions)
-    except getopt.error as err:
-        # output error, and return with an error code
-        print (str(err))
-        sys.exit(2)
-    
-    # evaluate given options
-    for currentArgument, currentValue in arguments:
-        if currentArgument in ("--input-file"):
-            FILE_PATH = currentValue
-            print ("Using search results links from input file:", FILE_PATH)
-
+def scrape_sents(input_file_path, output_file_path, chromedriver_path):
     nlp = spacy.load("en_core_web_sm")
 
     previous_links = {}
-    if os.path.exists(OUTPUT_FILE):
-        with open(OUTPUT_FILE, mode='r') as csv_file:
+    if os.path.exists(output_file_path):
+        with open(output_file_path, mode='r') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 if (row[0] in previous_links):
@@ -110,8 +88,9 @@ def main():
                 else:
                     previous_links[row[0]] = 0
 
-    with open(FILE_PATH) as fp:  
-        with open(OUTPUT_FILE, mode = 'a+') as black_file:
+    with open(input_file_path) as fp:
+        os.makedirs(os.path.dirname(output_file_path), exist_ok=True) 
+        with open(output_file_path, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
                 if (link in previous_links):
@@ -123,7 +102,7 @@ def main():
                 relevant_sents = []
 
                 try:
-                    link_data = getDataFromLink(nlp, link)
+                    link_data = getDataFromLink(nlp, link, chromedriver_path)
                     relevant_sents = link_data.get('sentences')
                 except Exception as ex:
                     print(ex)
@@ -137,5 +116,3 @@ def main():
 
                 if (cnt % 10 == 0):
                     print("Processed %d links.\n" % cnt)
-
-main()
