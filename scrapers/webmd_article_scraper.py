@@ -13,6 +13,7 @@ import os
 import spacy
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from utils import filter_results
 
 SEARCH_TERMS = ['african', 'black']
 WINDOW_SIZE = "1920,1080"
@@ -75,7 +76,7 @@ def getProcessedByline(authors_text):
     if authors[0:2] == 'By':
         return authors[3:]
 
-def scrape_sents(input_file_path, output_file_path, chromedriver_path):
+def scrape_sents(input_file_path, output_file_path, chromedriver_path, should_filter_results):
     nlp = spacy.load("en_core_web_sm")
 
     previous_links = {}
@@ -110,7 +111,10 @@ def scrape_sents(input_file_path, output_file_path, chromedriver_path):
 
                 authors = getProcessedByline(link_data.get('authors'))
                 for sent in relevant_sents:
-                    csv_writer.writerow([link, sent, authors])
+                    if (should_filter_results and filter_results.should_select_sentence(sent)):
+                        csv_writer.writerow([link, sent, authors])
+                    elif (not should_filter_results):
+                        csv_writer.writerow([link, sent, authors])
                 
                 time.sleep(2)
 

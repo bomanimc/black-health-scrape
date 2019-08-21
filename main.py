@@ -6,8 +6,8 @@ from scrapers import webmd_article_scraper
 write_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 
 # Default Configurations
-OUTPUT_FILE_NAME = 'data/webmd_sentences/scrape_results_' + write_time + '.csv'
-SHOULD_FILTER_RESULTS = True
+OUTPUT_FILE_NAME = 'data/test/webmd_sentences/scrape_results_' + write_time + '.csv'
+SHOULD_FILTER_RESULTS = False
 RESUME_FILE = None
 INPUT_ARTICLE_LINKS_FILE = None
 CHROMEDRIVER_PATH = None
@@ -61,6 +61,11 @@ def validateConfigValues():
 def main():
     validateConfigValues()
 
-    webmd_article_scraper.scrape_sents(INPUT_ARTICLE_LINKS_FILE, OUTPUT_FILE_NAME, CHROMEDRIVER_PATH)
+    webmd_article_scraper.scrape_sents(
+        INPUT_ARTICLE_LINKS_FILE,
+        OUTPUT_FILE_NAME,
+        CHROMEDRIVER_PATH,
+        SHOULD_FILTER_RESULTS
+    )
 
 main()

@@ -7,8 +7,8 @@ import operator
 import pprint
 
 INPUT_CSV_NAME = 'black_news'
-INPUT_FILE_PATH = 'black_news.csv'
-OUTPUT_FILE_BASE = 'cleaned/cleaned_'
+INPUT_FILE_PATH = 'data/black_news.csv'
+OUTPUT_FILE_BASE = 'data/cleaned/cleaned_'
 
 BAD_BIGRAMS = [
     'black tea', 
@@ -35,7 +35,22 @@ def has_only_relevant_blacks(sent):
     
     return True
 
-def should_select_sentence(sent, connected_bigrams):
+def get_bigrams_in_sentence(sent):
+    text = sent.lower()
+    token = word_tokenize(text)
+    bigrams = list(ngrams(token, 2)) 
+    connected_bigrams = []
+
+    for bigram in bigrams:
+        connected_bigram = ' '.join(bigram)
+        if (any(term in bigram[0] for term in ['african', 'black'])):
+            connected_bigrams.append(connected_bigram)
+    
+    return connected_bigrams
+
+def should_select_sentence(sent):
+    connected_bigrams = get_bigrams_in_sentence(sent)
+
     ends_with_period = sent[-1] == '.'
     no_newlines = "\n" not in sent
     not_about_trypanosomiasis = 'trypanosomiasis' not in sent
@@ -57,20 +72,14 @@ def main():
         for row in csv_reader:
             sent = row[1].strip()
             
-            text = sent.lower()
-            token = word_tokenize(text)
-            bigrams = list(ngrams(token, 2)) 
-            connected_bigrams = []
-            for bigram in bigrams:
-                connected_bigram = ' '.join(bigram)
-                if (any(term in bigram[0] for term in ['african', 'black'])):
-                    connected_bigrams.append(connected_bigram)
-                    if (connected_bigram in bigrams_dict):
-                        bigrams_dict[connected_bigram] += 1
-                    else:
-                        bigrams_dict[connected_bigram] = 1
+            connected_bigrams = get_bigrams_in_sentence(sent)
+            for connected_bigram in connected_bigrams:
+                if (connected_bigram in bigrams_dict):
+                    bigrams_dict[connected_bigram] += 1
+                else:
+                    bigrams_dict[connected_bigram] = 1
 
-            if (should_select_sentence(sent, connected_bigrams)):
+            if (should_select_sentence(sent)):
                 sentences.append(sent)
                 line_count += 1
             else:
@@ -92,4 +101,5 @@ def main():
         for cnt, sent in enumerate(sentences):
             out_file.write(sent + '\n')
 
-main()
+if __name__ == "__main__":
+    main()
