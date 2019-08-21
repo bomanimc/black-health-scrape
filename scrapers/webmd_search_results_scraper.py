@@ -7,20 +7,17 @@ line-by-line into a .txt file file.
 """
 
 import os
-import datetime
 from requests_html import HTMLSession
 
 BASE_SEARCH_URL = 'https://www.webmd.com/search/search_results/default.aspx?query=african%20american&page='
 
-def main():
+def scrape_search_result_links(output_folder_path):
     session = HTMLSession()
     status_code = 200
     pagination_counter = 1
 
-    write_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
-    base_output_path = "../data/webmd_search_results_" + write_time
-    news_links_filename = base_output_path + "/news_search_results.txt"
-    other_links_filename = base_output_path + "/other_search_results.txt"
+    news_links_filename = output_folder_path + "/news_search_results.txt"
+    other_links_filename = output_folder_path + "/other_search_results.txt"
     os.makedirs(os.path.dirname(news_links_filename), exist_ok=True)
     os.makedirs(os.path.dirname(other_links_filename), exist_ok=True)
     
@@ -48,5 +45,3 @@ def main():
 
             news_file.close()
             other_file.close()
-
-main()

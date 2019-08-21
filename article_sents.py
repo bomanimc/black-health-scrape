@@ -6,7 +6,7 @@ from scrapers import webmd_article_scraper
 write_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 
 # Default Configurations
-OUTPUT_FILE_NAME = 'data/test/webmd_sentences/scrape_results_' + write_time + '.csv'
+OUTPUT_FILE_NAME = 'data/test/webmd_sentences/article_sents_' + write_time + '.csv'
 SHOULD_FILTER_RESULTS = False
 RESUME_FILE = None
 INPUT_ARTICLE_LINKS_FILE = None
