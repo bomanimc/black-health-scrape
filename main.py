@@ -18,7 +18,6 @@ gnuOptions = [
     'chromedriver-path=', 
     'input-articles-file=',
     'output-file=',
-    'resume-file=',
     'filter-results'
 ]
 
@@ -37,15 +36,12 @@ for currentArgument, currentValue in arguments:
         print("Using search results links from input file:", INPUT_ARTICLE_LINKS_FILE)
     elif currentArgument in ("--output-file"):
         OUTPUT_FILE_NAME = currentValue
-    elif currentArgument in ("--resume-file"):
-        RESUME_FILE = currentValue
     elif currentArgument in ("--filter-results"):
         SHOULD_FILTER_RESULTS = True
 
 def printConfigurationValues():
     print("OUTPUT_FILE_NAME", OUTPUT_FILE_NAME)
     print("SHOULD_FILTER_RESULTS", SHOULD_FILTER_RESULTS)
-    print("RESUME_FILE", RESUME_FILE)
     print("INPUT_ARTICLE_LINKS_FILE", INPUT_ARTICLE_LINKS_FILE)
     print("CHROMEDRIVER_PATH", CHROMEDRIVER_PATH)
 
