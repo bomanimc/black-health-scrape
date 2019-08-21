@@ -5,11 +5,14 @@ from nltk import word_tokenize
 from nltk.util import ngrams
 import operator
 import pprint
+import getopt
+import sys
+import os
 
-INPUT_CSV_NAME = 'black_news'
-INPUT_FILE_PATH = 'data/black_news.csv'
-OUTPUT_FILE_BASE = 'data/cleaned/cleaned_'
+write_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 
+INPUT_FILE_PATH = None
+OUTPUT_FILE_PATH = 'data/test/cleaned/cleaned_results_' + write_time + '.csv'
 BAD_BIGRAMS = [
     'black tea', 
     'africano para', 
@@ -62,7 +65,44 @@ def should_select_sentence(sent):
 
     return ends_with_period and no_newlines and not_about_trypanosomiasis and only_relevant_black and not contains_bad_bigram
 
+def processArgs():
+    global INPUT_FILE_PATH
+    global OUTPUT_FILE_PATH
+
+    full_cmd_arguments = sys.argv
+    argument_list = full_cmd_arguments[1:]
+    gnuOptions = [
+        'input-file=',
+        'output-file=',
+    ]
+
+    try:
+        arguments, values = getopt.getopt(argument_list, "", gnuOptions)
+    except getopt.error as err:
+        # output error, and return with an error code
+        print (str(err))
+        sys.exit(2)
+
+    for currentArgument, currentValue in arguments:
+        if currentArgument in ("--output-file"):
+            OUTPUT_FILE_PATH = currentValue
+        elif currentArgument in ("--input-file"):
+            INPUT_FILE_PATH = currentValue
+            print("Using search results links from input file:", INPUT_FILE_PATH)
+
+def validateArgs():
+    if (OUTPUT_FILE_PATH == None or INPUT_FILE_PATH == None):
+        if (OUTPUT_FILE_PATH == None):
+            print ("Must set output file path.")
+        elif (INPUT_FILE_PATH == None):
+            print ("Must set input file path.")
+
+        sys.exit(2)
+
 def main():
+    processArgs()
+    validateArgs()
+
     sentences = []
     bigrams_dict = {}
     with open(INPUT_FILE_PATH, mode='r') as csv_file:
@@ -95,9 +135,8 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
     pp.pprint(sorted_bigrams_dict)
 
-    write_time = datetime.datetime.now()
-    output_file = OUTPUT_FILE_BASE + "_" + INPUT_CSV_NAME + "_" + str(write_time) + '.csv'
-    with open(output_file, mode='a') as out_file:
+    os.makedirs(os.path.dirname(OUTPUT_FILE_PATH), exist_ok=True) 
+    with open(OUTPUT_FILE_PATH, mode='a') as out_file:
         for cnt, sent in enumerate(sentences):
             out_file.write(sent + '\n')
 
