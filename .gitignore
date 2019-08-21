@@ -1,3 +1,9 @@
 **/.DS_Store
 samples/
 cleaned/
+data/test/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
