@@ -1,3 +1,11 @@
+"""WebMD Article Scraper
+
+This scraper goes through a list of WebMD links and collects the text
+in each article. It then breaks the text into sentences and selects 
+sentences that contain the words in the SEARCH_TERMS array. 
+
+"""
+
 import re
 import time
 import csv
@@ -5,15 +13,12 @@ import os
 import spacy
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from utils import filter_results
 
-FILE_PATH = 'webmd_results.txt'
 SEARCH_TERMS = ['african', 'black']
-OUTPUT_FILE = 'black_news.csv'
-
-CHROMEDRIVER_PATH = '/Users/Bomani/chromedriver'
 WINDOW_SIZE = "1920,1080"
 
-def getDataFromLink(nlp, link):
+def getDataFromLink(nlp, link, chromedriver_path):
     relevant_sentences = []
     author_text = 'NONE'
 
@@ -23,7 +28,7 @@ def getDataFromLink(nlp, link):
     chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
     
     driver = webdriver.Chrome(
-        executable_path=CHROMEDRIVER_PATH,
+        executable_path=chromedriver_path,
         options=chrome_options
     )  
     driver.get(link.strip())
@@ -71,12 +76,12 @@ def getProcessedByline(authors_text):
     if authors[0:2] == 'By':
         return authors[3:]
 
-def main():
+def scrape_sents(input_file_path, output_file_path, chromedriver_path, should_filter_results):
     nlp = spacy.load("en_core_web_sm")
 
     previous_links = {}
-    if os.path.exists(OUTPUT_FILE):
-        with open(OUTPUT_FILE, mode='r') as csv_file:
+    if os.path.exists(output_file_path):
+        with open(output_file_path, mode='r') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             for row in csv_reader:
                 if (row[0] in previous_links):
@@ -84,12 +89,13 @@ def main():
                 else:
                     previous_links[row[0]] = 0
 
-    with open(FILE_PATH) as fp:  
-        with open(OUTPUT_FILE, mode = 'a+') as black_file:
+    with open(input_file_path) as fp:
+        os.makedirs(os.path.dirname(output_file_path), exist_ok=True) 
+        with open(output_file_path, mode = 'a+') as black_file:
             csv_writer = csv.writer(black_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             for cnt, link in enumerate(fp):
-                if (link in previous_links or '/news/' not in link):
-                    print("Skipping link: %s. \n" % link)
+                if (link in previous_links):
+                    print("Skipping link because it has already been scraped: %s. \n" % link)
                     continue
                 
                 print(link + "\n")
@@ -97,7 +103,7 @@ def main():
                 relevant_sents = []
 
                 try:
-                    link_data = getDataFromLink(nlp, link)
+                    link_data = getDataFromLink(nlp, link, chromedriver_path)
                     relevant_sents = link_data.get('sentences')
                 except Exception as ex:
                     print(ex)
@@ -105,11 +111,12 @@ def main():
 
                 authors = getProcessedByline(link_data.get('authors'))
                 for sent in relevant_sents:
-                    csv_writer.writerow([link, sent, authors])
+                    if (should_filter_results and filter_results.should_select_sentence(sent)):
+                        csv_writer.writerow([link, sent, authors])
+                    elif (not should_filter_results):
+                        csv_writer.writerow([link, sent, authors])
                 
                 time.sleep(2)
 
                 if (cnt % 10 == 0):
                     print("Processed %d links.\n" % cnt)
-
-main()
