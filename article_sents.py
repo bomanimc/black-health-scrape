@@ -1,67 +1,56 @@
-import getopt
-import sys
+import click
 import datetime
 from scrapers import webmd_article_scraper
 
 write_time = datetime.datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
 
-# Default Configurations
-OUTPUT_FILE_NAME = 'data/test/webmd_sentences/article_sents_' + write_time + '.csv'
-SHOULD_FILTER_RESULTS = False
-RESUME_FILE = None
-INPUT_ARTICLE_LINKS_FILE = None
-CHROMEDRIVER_PATH = None
-
-full_cmd_arguments = sys.argv
-argument_list = full_cmd_arguments[1:]
-gnuOptions = [
-    'chromedriver-path=', 
-    'input-articles-file=',
-    'output-file=',
-    'filter-results'
-]
-
-try:
-    arguments, values = getopt.getopt(argument_list, "", gnuOptions)
-except getopt.error as err:
-    # output error, and return with an error code
-    print (str(err))
-    sys.exit(2)
-
-for currentArgument, currentValue in arguments:
-    if currentArgument in ("--chromedriver-path"):
-        CHROMEDRIVER_PATH = currentValue
-    elif currentArgument in ("--input-articles-file"):
-        INPUT_ARTICLE_LINKS_FILE = currentValue
-        print("Using search results links from input file:", INPUT_ARTICLE_LINKS_FILE)
-    elif currentArgument in ("--output-file"):
-        OUTPUT_FILE_NAME = currentValue
-    elif currentArgument in ("--filter-results"):
-        SHOULD_FILTER_RESULTS = True
-
-def printConfigurationValues():
-    print("OUTPUT_FILE_NAME", OUTPUT_FILE_NAME)
-    print("SHOULD_FILTER_RESULTS", SHOULD_FILTER_RESULTS)
-    print("INPUT_ARTICLE_LINKS_FILE", INPUT_ARTICLE_LINKS_FILE)
-    print("CHROMEDRIVER_PATH", CHROMEDRIVER_PATH)
-
-def validateConfigValues():
-    if (INPUT_ARTICLE_LINKS_FILE == None or CHROMEDRIVER_PATH == None):
-        if (INPUT_ARTICLE_LINKS_FILE == None):
-            print ("Must provide filename for input articles file path.")
-        elif (CHROMEDRIVER_PATH == None):
-            print ("Must set Chromedriver path.")
-
-        sys.exit(2)
-
-def main():
-    validateConfigValues()
-
+@click.command()
+@click.option(
+    '-c', '--chromedriver-path', 'chromedriver_path',
+    default = None,
+    required = True,
+    help = "Used to specify the path to your Chromedriver binary."
+)
+@click.option(
+    '-i', '--input-articles-file', 'input_articles_file',
+    default = None,
+    required = True,
+    help = (
+        f"Used to specify the path to the newline-delimited .txt file containing the"
+        f"links to the articles that this scraper should evaluated. The simplest" 
+        f"approach is to specify a file that was created by the Search Results Scraper."
+    )
+)
+@click.option(
+    '-o', '--output-file', 'output_file',
+    default = 'data/test/webmd_sentences/article_sents_' + write_time + '.csv',
+    show_default = True,
+    help = (
+        f"Used to specify the path to the CSV file where the results will be stored." 
+        f"If the directory doesn't exist, it will be created. If an output file"
+        f"containing some results is specified, this program will skip links that"
+        f"have already been evaluated. This is a good technique to use if you need"
+        f"to resume scraping after quitting the scraper before it finishes."
+    )
+)
+@click.option(
+    '-f', '--filter-results', 'should_filter_results',
+    default = False,
+    show_default = True,
+    is_flag=True,
+    help = (
+        f"Used to specify that the sentences collected from WebMD articles should be"
+        f"filtered to remove potentially irrelevant sentences based on the logic in"
+        f"utils/filter_results.py."
+    )
+)
+def main(chromedriver_path, input_articles_file, output_file, should_filter_results):
     webmd_article_scraper.scrape_sents(
-        INPUT_ARTICLE_LINKS_FILE,
-        OUTPUT_FILE_NAME,
-        CHROMEDRIVER_PATH,
-        SHOULD_FILTER_RESULTS
+        input_articles_file,
+        output_file,
+        chromedriver_path,
+        should_filter_results
     )
 
-main()
+if __name__ == '__main__':
+    main()

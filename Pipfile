@@ -11,6 +11,7 @@ requests-html = "*"
 spacy = "*"
 selenium = "*"
 click = "*"
+nltk = "*"
 
 [requires]
 python_version = "3.7"
