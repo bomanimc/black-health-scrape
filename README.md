@@ -40,7 +40,7 @@ python search_results.py --output-folder=path/to/ouput/folder
 
 This command will result in the creation of two newline-delimited `.txt` files inside of the specified folder: one containing news article links (those that contain `/news/`) and one containing all other links.
 
-**--output-folder=**
+**--output-folder= OR -o**
 
 Optional parameter used for specifying which directory to place the output files into. If the directory doesn't exist, it will be created.
 
@@ -52,18 +52,18 @@ python article_sents.py --chromedriver-path=path/to/chromedriver --input-article
 ```
 This command will result in the creation of a CSV file that contains a collection of sentences matching the keywords. Use of the `--filter-results` flag also means that the results will be filtered to remove potentially irrelevant sentences.
 
-**--chromedriver-path=**
+**--chromedriver-path= OR -c**
 
 Required parameter used to specify the path to your Chromedriver binary.
 
-**--input-article-links=**
+**--input-article-links= OR -i**
 
 Required parameter used to specify the path to the newline-delimited `.txt` file containing the links to the articles that this scraper should evaluated. The simplest approach is to specify a file that was created by the Search Results Scraper.
 
-**--output-file=**
+**--output-file= OR -o**
 
 Optional parameter to specify the path to the CSV file where the results will be stored. If the directory doesn't exist, it will be created. If an output file containing some results is specified, this program will skip links that have already been evaluated. This is a good technique to use if you need to resume scraping after quitting the scraper before it finishes.
 
-**--filter-results**
+**--filter-results OR -f**
 
 Optional flag used to specify that the sentences collected from WebMD articles should be filtered to remove potentially irrelevant sentences based on the logic in `utils/filter_results.py`.
