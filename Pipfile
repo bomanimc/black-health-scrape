@@ -12,6 +12,7 @@ spacy = "*"
 selenium = "*"
 click = "*"
 nltk = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.7"
