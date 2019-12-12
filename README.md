@@ -24,7 +24,7 @@ Start the virtual environment containing the downloaded dependencies:
 pipenv shell
 ```
 
-[Download a version of Chromedriver](https://chromedriver.chromium.org/downloads) that supports your version of Google Chrome.
+[Download a version of Chromedriver](https://chromedriver.chromium.org/downloads) that supports your version of Google Chrome. You can see your version of Chrome by visiting [chrome://settings/help](chrome://settings/help) in the Chrome browser.
 
 ## Usage
 This project collects sentences from WebMD following a two step process:
