@@ -28,7 +28,7 @@ def scrape_search_result_links(output_folder_path):
             break
         
         for _, link in enumerate(results.absolute_links):
-            search_result_links.append(link)
+            search_result_links.append((link, get_link_type(link)))
 
         if (pagination_counter % 10 == 0):
             print("Added links up to results page %d.\n" % pagination_counter)
@@ -37,5 +37,9 @@ def scrape_search_result_links(output_folder_path):
 
     os.makedirs(os.path.dirname(output_folder_path), exist_ok=True)
 
-    search_result_df = pd.DataFrame(search_result_links, columns=['search_result_url'])
+    search_result_df = pd.DataFrame(search_result_links, columns=['search_result_url', 'link_type'])
     search_result_df.to_csv(output_folder_path + '.csv', index=False)
+
+
+def get_link_type (link):
+    return 'news' if '/news/' in link else 'other'
