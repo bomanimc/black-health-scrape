@@ -19,6 +19,11 @@ brew install pipenv
 pipenv install
 ```
 
+Install the [spaCy English language model](https://spacy.io/models/en) that will be used for senticizing.
+```
+python -m spacy download en_core_web_sm
+```
+
 Start the virtual environment containing the downloaded dependencies:
 ```
 pipenv shell
